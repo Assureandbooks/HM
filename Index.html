@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homey Matters | Cozy Fragrance Candles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --teal: #009688;
+            --orange: #FF8C00;
+            --pink: #E91E63;
+            --green: #8BC34A;
+            --yellow: #FFC107;
+            --bg-color: #FFFDF7;
+            --text-color: #4A4A4A;
+            --card-bg: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ctext y='24' font-size='24'%3E🔥%3C/text%3E%3C/svg%3E"), auto;
+        }
+
+        a, button, .nav-logo, .product-card {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ctext y='24' font-size='24'%3E🔥%3C/text%3E%3C/svg%3E"), pointer !important;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-logo {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--teal);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links { display: flex; gap: 15px; flex-wrap: wrap;}
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 800;
+            font-size: 18px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            background-color: var(--yellow);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Candle Animation CSS */
+        .candle-icon {
+            display: inline-block;
+            font-size: 1.2rem;
+            filter: grayscale(100%) brightness(0.7);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .lit .candle-icon {
+            filter: grayscale(0%) brightness(1.2) drop-shadow(0 0 10px #FF9800) drop-shadow(0 0 20px #FFEB3B);
+            transform: scale(1.5);
+        }
+
+        /* Page Layouts */
+        .page {
+            display: none;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease;
+            min-height: 60vh;
+        }
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Homepage Dynamic Text */
+        .dynamic-text {
+            font-size: 4rem; 
+            color: var(--pink); 
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .dynamic-text span {
+            display: inline-block;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease;
+        }
+        
+        .dynamic-text span:hover {
+            transform: scale(1.15) rotate(-5deg) translateY(-10px);
+            color: var(--teal);
+        }
+
+        .home-features {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .home-feature-box {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            font-weight: 800;
+            color: var(--teal);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .home-feature-box:hover {
+            transform: translateY(-5px);
+            background: var(--teal);
+            color: white;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: var(--teal);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 50px;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+            transition: all 0.1s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+        .btn:hover { filter: brightness(1.1); }
+        .btn:active { transform: translateY(5px); box-shadow: 0 0 0 transparent; }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--teal);
+            border: 2px solid var(--teal);
+            box-shadow: none;
+            width: auto;
+        }
+        .btn-outline:active { transform: translateY(2px); }
+
+        /* Shop Grid (Outer view) */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--orange);
+            box-shadow: 0 15px 30px rgba(255, 140, 0, 0.15);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .pack-badge {
+            background-color: var(--yellow);
+            color: #4A4A4A;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 900;
+            display: inline-block;
+            margin: 0 auto 10px auto;
+            border: 2px dashed #FFF;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .product-card h3 {
+            font-size: 1.4rem;
+            color: var(--text-color);
+            margin: 5px 0 10px 0;
+            font-weight: 900;
+        }
+
+        .product-card .price {
+            font-size: 1.3rem;
+            color: var(--teal);
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        /* Single Product Details (Inner view) */
+        .details-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+
+        .details-image-box {
+            flex: 1;
+            min-width: 300px;
+        }
+        .details-image-box img {
+            width: 100%;
+            border-radius: 20px;
+            object-fit: cover;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .details-info-box {
+            flex: 1.2;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .details-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin: 0 0 10px 0;
+        }
+
+        .details-price {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 25px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px 0;
+        }
+        .feature-list li {
+            font-size: 1.15rem;
+            margin-bottom: 15px;
+            padding-left: 35px;
+            position: relative;
+            line-height: 1.5;
+            color: #555;
+            font-weight: 600;
+        }
+        .feature-list li::before {
+            content: '✨';
+            position: absolute;
+            left: 0;
+            top: 2px;
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: auto;
+            align-items: stretch;
+            flex-wrap: wrap;
+        }
+        
+        .qty-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f5f5f5;
+            padding: 5px 15px;
+            border-radius: 50px;
+            border: 2px solid #eaeaea;
+            font-weight: 800;
+        }
+        
+        .qty-wrapper input {
+            border: none;
+            background: transparent;
+            width: 40px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-align: center;
+            color: var(--text-color);
+            outline: none;
+            font-family: 'Nunito', sans-serif;
+            margin-left: 10px;
+        }
+
+        /* Contact Page Styles */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .contact-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border-bottom: 5px solid var(--teal);
+        }
+        .contact-card h3 {
+            color: var(--teal);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .contact-card a {
+            color: var(--pink);
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+        .contact-card a:hover {
+            text-decoration: underline;
+        }
+
+        footer { text-align: center; padding: 30px; background-color: var(--teal); color: white; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo" onclick="navigate('home', event)">
+            🏠 Homey Matters <span class="candle-icon">🕯️</span>
+        </div>
+        <div class="nav-links">
+            <a onclick="navigate('home', event)" id="link-home" class="active">Home <span class="candle-icon">🕯️</span></a>
+            <a onclick="navigate('shop', event)" id="link-shop">Shop <span class="candle-icon">🕯️</span></a>
+            <a onclick="navigate('contact', event)" id="link-contact">Contact <span class="candle-icon">🕯️</span></a>
+        </div>
+    </nav>
+
+    <div id="home" class="page active">
+        <div style="text-align: center; padding: 70px 20px; background: linear-gradient(135deg, #FFFDF7, #FFF3E0); border-radius: 30px; margin-bottom: 40px; border: 2px dashed var(--orange);">
+            <h1 class="dynamic-text">
+                <span>Welcome</span> <span>to</span> <span>Your</span> <span>Cozy</span> <span>Zone</span>
+            </h1>
+            <p style="font-size: 1.3rem; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+                Hand-poured fragrance candles designed to make every corner feel like home. Ignite relaxation and warmth with our curated collections.
+            </p>
+            <button class="btn" style="width: auto; padding: 15px 40px; font-size: 1.2rem;" onclick="navigate('shop', event)">Shop Collection <span class="candle-icon">🕯️</span></button>
+            
+            <div class="home-features">
+                <div class="home-feature-box">🌿 100% Natural Wax</div>
+                <div class="home-feature-box">✨ Hand-poured with love</div>
+                <div class="home-feature-box">🌸 Premium Fragrances</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shop" class="page">
+        <h1 style="text-align: center; color: var(--teal); font-size: 2.8rem; margin-bottom: 10px;">Our Candle Collection</h1>
+        <p style="text-align: center; margin-bottom: 40px; color: #666; font-size: 1.1rem;">Click on any candle to see its cozy details.</p>
+        <div class="shop-grid" id="catalog-grid">
+            </div>
+    </div>
+
+    <div id="product-page" class="page">
+        <button class="btn btn-outline" onclick="navigate('shop', event)" style="margin-bottom: 20px;">
+            ← Back to Shop <span class="candle-icon">🕯️</span>
+        </button>
+        
+        <div class="details-container">
+            <div class="details-image-box">
+                <img id="detail-img" src="" alt="Product Image">
+            </div>
+            <div class="details-info-box">
+                <div id="detail-pack" class="pack-badge" style="margin: 0 0 15px 0;">Pack info</div>
+                <h1 id="detail-title" class="details-title">Title</h1>
+                <div id="detail-price" class="details-price">Price</div>
+                
+                <ul id="detail-features" class="feature-list">
+                    </ul>
+
+                <div class="action-buttons">
+                    <div class="qty-wrapper">
+                        <label for="detail-qty">Qty:</label>
+                        <input type="number" id="detail-qty" value="1" min="1">
+                    </div>
+                    <button id="detail-buy-btn" class="btn" onclick="" style="width: auto; flex-grow: 1;">
+                        Add to Cart via WhatsApp <span class="candle-icon">🕯️</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="contact" class="page">
+        <div style="text-align: center; padding: 40px 20px; background: white; border-radius: 30px; border: 2px dashed var(--teal);">
+            <h1 style="font-size: 3rem; color: var(--teal); margin-bottom: 10px;">Let's Connect</h1>
+            <p style="font-size: 1.2rem; color: #666;">We would love to hear from you. Reach out for custom orders or inquiries!</p>
+            
+            <div class="contact-grid">
+                <div class="contact-card" style="border-bottom-color: var(--yellow);">
+                    <h3>📞 Call or WhatsApp</h3>
+                    <p style="font-size: 1.2rem; font-weight: 800; color: #555;">
+                        +91 94440 31237<br><br>
+                        +91 99624 32391
+                    </p>
+                </div>
+                
+                <div class="contact-card" style="border-bottom-color: var(--pink);">
+                    <h3>✉️ Email Us</h3>
+                    <p style="margin-top: 20px;">
+                        <a href="mailto:assureandbooks@outlook.com">assureandbooks@outlook.com</a>
+                    </p>
+                </div>
+                
+                <div class="contact-card" style="border-bottom-color: var(--orange);">
+                    <h3>📸 Follow Us</h3>
+                    <p style="margin-top: 20px;">
+                        <a href="https://www.instagram.com/homeymatters/" target="_blank">@homeymatters on Instagram</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <h3 style="margin: 0 0 10px 0; font-size: 1.5rem;">Homey Matters</h3>
+        <p style="margin: 5px 0;">Bringing warmth to your doorstep.</p>
+        <p style="margin: 5px 0; font-weight: 800;">WhatsApp: +91 99624 32391 | +91 94440 31237</p>
+    </footer>
+
+    <script>
+        // 1. Data: Now includes the required "pack" information
+        const products = [
+            {
+                id: "bubble-pop",
+                name: "Rainbow Bubble Pop",
+                pack: "Pack of 4",
+                price: 250,
+                image: "Bubble pack of 4.jpeg",
+                color: "var(--pink)",
+                features: [
+                    "Set of four cheerful hues (Lime, Pink, Blue, Purple)",
+                    "Playful and trendy 3D bubble sphere design",
+                    "Infused with fresh, mood-lifting seasonal fragrances",
+                    "Perfect aesthetic piece for desks, shelves, or vanity tables"
+                ]
+            },
+            {
+                id: "prismatic-tealights",
+                name: "Prismatic Harmony",
+                pack: "Pack of 6",
+                price: 200,
+                image: "Classsic circle pack of 6.jpeg",
+                color: "var(--yellow)",
+                features: [
+                    "Pack of 6 premium clear-cup tealight candles",
+                    "Vibrant, mood-matching color spectrum",
+                    "Delivers a clean, bright, and steady soothing flame",
+                    "Instantly transforms your evening ambiance with pops of color"
+                ]
+            },
+            {
+                id: "enchanted-daisy",
+                name: "Enchanted Daisy Fields",
+                pack: "Pack of 5",
+                price: 210,
+                image: "Daisy pack of 6.jpeg",
+                color: "var(--green)",
+                features: [
+                    "Five beautifully sculpted daisy flowers in earthy tones",
+                    "Each flower rests on a charming handcrafted terracotta base",
+                    "Intricate wax detailing on every delicate petal",
+                    "Brings a warm, floral summer garden vibe indoors"
+                ]
+            },
+            {
+                id: "peony-pink",
+                name: "Peony Perfection",
+                pack: "Pack of 6",
+                price: 150,
+                image: "Pink Rose Pack of 6.jpeg",
+                color: "var(--pink)",
+                features: [
+                    "Six delicate, tender pink rosette wax melts",
+                    "Releases a classic, sophisticated fresh peony aroma",
+                    "Designed for slow, flame-free melting in wax warmers",
+                    "Adds an elegant, floral touch to your home decor"
+                ]
+            },
+            {
+                id: "crimson-berry",
+                name: "Crimson Berry Blossoms",
+                pack: "Pack of 6",
+                price: 150,
+                image: "Red Rose Pack of 6.jpeg",
+                color: "var(--orange)",
+                features: [
+                    "Six deep crimson, intricately shaped berry candles",
+                    "Emanates a sweet, comforting, and fruity fragrance",
+                    "Rich red tones add vibrant visual warmth to any space",
+                    "A delightful, mouth-watering addition to your cozy nook"
+                ]
+            },
+            {
+                id: "stardust-stars",
+                name: "Stardust Serenade",
+                pack: "Pack of 6",
+                price: 200,
+                image: "Star pack of 6.jpeg",
+                color: "#9C27B0",
+                features: [
+                    "Six magical star-shaped candles in pastel celestial colors",
+                    "Wax is beautifully infused with shimmering fine glitter",
+                    "Rests cleanly in individual crystal-clear star bases",
+                    "Creates a peaceful, enchanting, cosmic atmosphere"
+                ]
+            },
+            {
+                id: "eternal-hearts",
+                name: "Eternal Ember Hearts",
+                pack: "Pack of 6",
+                price: 200,
+                image: "Valentine's heart pack of 6.jpeg",
+                color: "var(--pink)",
+                features: [
+                    "Generous set of vibrant red heart-shaped tealights",
+                    "Encased safely in clear cups to highlight the rich color",
+                    "Universally symbolic of love, romance, and warmth",
+                    "Ideal for setting a peaceful, romantic, or celebratory mood"
+                ]
+            }
+        ];
+
+        // 2. Render Shop Page (Whole Card Clickable & Pack Info Added)
+        const catalogGrid = document.getElementById('catalog-grid');
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            // Notice: The onclick is now on the whole card
+            card.setAttribute('onclick', `openProduct('${product.id}', event)`);
+            
+            card.innerHTML = `
+                <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/400x300?text=Product+Image'">
+                <div class="pack-badge">${product.pack}</div>
+                <h3>${product.name}</h3>
+                <div class="price">₹${product.price}</div>
+                <button class="btn" style="background-color: ${product.color}; margin-top: auto; pointer-events: none;">
+                    View Details <span class="candle-icon">🕯️</span>
+                </button>
+            `;
+            catalogGrid.appendChild(card);
+        });
+
+        // 3. Navigation Controller 
+        function navigate(pageId, event) {
+            if(event) {
+                const btn = event.currentTarget;
+                btn.classList.add('lit');
+                setTimeout(() => {
+                    btn.classList.remove('lit');
+                    executeNav(pageId);
+                }, 300); 
+            } else {
+                executeNav(pageId);
+            }
+        }
+
+        function executeNav(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+            const activeLink = document.getElementById('link-' + pageId);
+            if(activeLink) activeLink.classList.add('active');
+            
+            window.scrollTo(0, 0);
+        }
+
+        // 4. Open Single Product Page 
+        function openProduct(productId, event) {
+            const cardElement = event.currentTarget;
+            cardElement.classList.add('lit');
+            
+            setTimeout(() => {
+                cardElement.classList.remove('lit');
+                
+                const product = products.find(p => p.id === productId);
+                
+                document.getElementById('detail-title').innerText = product.name;
+                document.getElementById('detail-title').style.color = product.color;
+                document.getElementById('detail-price').innerText = `₹${product.price}`;
+                document.getElementById('detail-pack').innerText = product.pack;
+                
+                // Reset quantity when opening a new product
+                document.getElementById('detail-qty').value = 1;
+                
+                const imgEl = document.getElementById('detail-img');
+                imgEl.src = product.image;
+                imgEl.onerror = () => { imgEl.src = 'https://via.placeholder.com/600x500?text=Product+Image'; };
+                
+                const featuresList = document.getElementById('detail-features');
+                featuresList.innerHTML = '';
+                product.features.forEach(feature => {
+                    const li = document.createElement('li');
+                    li.innerText = feature;
+                    featuresList.appendChild(li);
+                });
+
+                const buyBtn = document.getElementById('detail-buy-btn');
+                buyBtn.style.backgroundColor = product.color;
+                buyBtn.onclick = (e) => sendToWhatsApp(e, product.name, product.price, product.pack);
+
+                executeNav('product-page');
+            }, 300);
+        }
+
+        // 5. WhatsApp Checkout (Now with Quantity & Calculations)
+        function sendToWhatsApp(event, productName, unitPrice, packInfo) {
+            const btn = event.currentTarget;
+            btn.classList.add('lit');
+            
+            // Get the user's selected quantity
+            const qtyInput = document.getElementById('detail-qty');
+            const quantity = parseInt(qtyInput.value) || 1;
+            const totalPrice = unitPrice * quantity;
+            
+            setTimeout(() => {
+                btn.classList.remove('lit');
+                const phoneNumber = "919444031237"; 
+                const message = `✨ Hello Homey Matters! ✨\n\nI am browsing your beautiful collection and would love to place an order:\n\n🛍️ *Item:* ${productName} (${packInfo})\n🔢 *Quantity:* ${quantity}\n💰 *Total Price:* ₹${totalPrice}\n\nPlease let me know how to proceed with payment! 🏡`;
+                const encodedMessage = encodeURIComponent(message);
+                const waLink = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+                window.open(waLink, '_blank');
+            }, 400);
+        }
+    </script>
+</body>
+</html>
